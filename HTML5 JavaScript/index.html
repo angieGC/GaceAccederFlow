@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Save form Data in a Text File using JavaScript</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        div {
+            padding: 10px;
+            background-color: rgb(198, 215, 216);
+            overflow: hidden;
+        }
+        
+        h1 {
+            text-align: center;
+            color: rgb(160, 231, 206);
+            font: Calibri;
+        }
+        
+        input[type=text],
+        input[type=number],
+        textarea,
+        select {
+            font: 17px Calibri;
+            width: 100%;
+            border-radius: 4px;
+            padding: 12px 20px;
+            display: inline-block;
+            color: rgb(255, 255, 255);
+            box-sizing: border-box;
+            background-color: #6d6d6d;
+            border-color: #6d6d6d;
+        }
+        
+        input[type=text]::placeholder,
+        input[type=number]::placeholder {
+            color: rgb(151, 151, 151);
+        }
+        
+        input[type=submit] {
+            width: 100%;
+            background-color: rgb(52, 161, 123);
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        input[type=submit]:hover {
+            background-color: rgb(41, 109, 85);
+        }
+        
+        div {
+            border-radius: 5px;
+            background-color: #000000;
+            padding: 20px;
+        }
+        
+        form {
+            align-items: center;
+            width: 50%
+        }
+        
+        body {
+            background-color: #000000;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <h1> GAZEFLOW API TEST</h1>
+        <center>
+            <form action="pausa1.html" method="post">
+                <div>
+                    <label for="txtName">Nombre completo</label>
+                    <input type="text" id="txtName" placeholder="Ingrese su nombre" />
+                    <label for="txtAge">Edad</label>
+                    <input type="number" id="txtAge" min="15" max="80" placeholder="Ingrese su edad" />
+                </div>
+                <div>
+                    <input type="submit" id="bt" value="Continuar" onclick="saveFile()" />
+                </div>
+            </form>
+        </center>
+    </div>
+</body>
+<script>
+    function saveFile() {
+
+        // Get the data from each element on the form.
+        const name = document.getElementById('txtName');
+        const age = document.getElementById('txtAge');
+        const enf = document.getElementById('Enfvis');
+
+        // This variable stores all the data.
+        let data =
+            'Name: ' + name.value + ' \r ' +
+            'Age: ' + age.value + ' \r\n ';
+
+        // Convert the text to BLOB.
+        const textToBLOB = new Blob([data], {
+            type: 'text/plain'
+        });
+        const sFileName = 'participante.txt'; // The file to save the data.
+
+        let newLink = document.createElement("a");
+        newLink.download = sFileName;
+
+        if (window.webkitURL != null) {
+            newLink.href = window.webkitURL.createObjectURL(textToBLOB);
+        } else {
+            newLink.href = window.URL.createObjectURL(textToBLOB);
+            newLink.style.display = "none";
+            document.body.appendChild(newLink);
+        }
+        newLink.click();
+    }
+</script>
+
+</html>

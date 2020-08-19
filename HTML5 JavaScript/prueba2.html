@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <style>
+        .fit {
+            position: absolute;
+            top: 0;
+            width: auto;
+            height: 100%;
+            margin-left: auto;
+            margin-right: auto;
+            left: 0;
+            right: 0;
+        }
+        
+        h1 {
+            margin-top: 10%;
+            text-align: center;
+            color: rgb(81, 224, 174);
+            font: Calibri;
+        }
+        
+        h4 {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: rgb(255, 255, 255);
+            font-size: 20px;
+        }
+        
+        #countdown {
+            top: 30px;
+        }
+        
+        body {
+            background-color: black;
+        }
+    </style>
+
+    <script type="text/javascript">
+        var ConnectionAuthorizationStatus;
+        var d = new Date();
+        var gazedatasave = ["GazeX,GazeY", d.toLocaleTimeString()]
+
+        //To get your AppKey register at http://gazeflow.epizy.com/GazeFlowAPI/register/
+
+        function Connect(AppKey = "gaze images", port = 43333) {
+
+
+
+            if ("WebSocket" in window) {
+
+
+                var url = "ws://127.0.0.1:" + port;
+
+
+                var ws = new WebSocket(url);
+
+
+                ws.onopen = function() {
+
+                    ws.send(AppKey); // Send appKey
+
+                }
+
+
+                ws.onerror = function(error) {
+
+
+                    alert("cannot connect to GazePointer server : start GazePointer( http://gazepointer.sourceforge.net ) ");
+
+
+                }
+
+
+
+
+                ws.onmessage = function(evt) {
+                    var received_msg = evt.data;
+
+
+                    if (typeof ConnectionAuthorizationStatus === 'undefined') {
+                        ConnectionAuthorizationStatus = received_msg;
+
+                        if (ConnectionAuthorizationStatus.substring(0, 2) !== "ok")
+
+                            alert("connection status..." + ConnectionAuthorizationStatus);
+                    } else {
+
+                        var GazeData = JSON.parse(received_msg);
+                        PlotGazeData(GazeData);
+                        //console.log(GazeData);
+                    }
+
+                }
+
+
+                ws.onclose = function() {
+
+
+
+
+                    // websocket is closed.
+                    alert("Connection is closed...");
+                };
+
+
+            } else {
+
+                // The browser doesn't support WebSocket
+                alert("WebSocket NOT supported by your Browser!");
+            }
+
+        }
+        Connect();
+
+        function PlotGazeData(GazeData) {
+            var d = new Date();
+            time = d.toLocaleTimeString('it-US') + `.${d.getMilliseconds()}`;
+
+            gazedatasave.unshift(GazeData.GazeX + " , " + GazeData.GazeY + " , " + time + "\n");
+        }
+        var imagenes = new Array();
+
+        for (var i = 0; i < 101; i++) {
+            var str = "" + (i + 1);
+            var pad = "kootstra00000";
+            var ans = pad.substring(0, pad.length - str.length) + str;
+            imagenes[i] = 'D:/Angie/universidad/2019/angie2/kootstra/eyeTrackImages - copia/' + ans + '.png';
+        }
+        var contador = 0;
+        var sizeim = imagenes.length;
+        console.log(sizeim);
+
+        function rotarImagenes() {
+            document.getElementById("imagen").src = imagenes[contador];
+            imagefile = imagefile = document.getElementById("imagen").src.toString();
+
+            contador++;
+            document.getElementById("cont").innerHTML = contador.toString();
+
+
+            imagefi = imagefile[imagefile.length - 1].split("");
+            imagef = imagefi[10] + imagefi[11] + imagefi[12];
+
+            gazedatasave.unshift(imagef + " \n");
+
+            if (contador - 1 == sizeim) {
+                saveFile();
+                contador = -1;
+                black();
+            }
+            if (contador == -1) {
+                setTimeout("nextstep()", 3000);
+            }
+        }
+
+        function nextstep() {
+            location.href = "index.html";
+        }
+
+        function saveFile() {
+            var data = gazedatasave.toString();
+            const textToBLOB = new Blob([data], {
+                type: 'text/plain'
+            });
+            const sFileName = 'user2.cvs';
+            let newLink = document.createElement("a");
+            newLink.download = sFileName;
+
+            if (window.webkitURL != null) {
+                newLink.href = window.webkitURL.createObjectURL(textToBLOB);
+            } else {
+                newLink.href = window.URL.createObjectURL(textToBLOB);
+                newLink.style.display = "none";
+                document.body.appendChild(newLink);
+            }
+            newLink.click();
+
+        }
+        var totalTime = 7;
+
+        function cambiarimg() {
+            document.getElementById('countdown').innerHTML = totalTime;
+            if (totalTime === 0) {
+                rotarImagenes();
+                totalTime = 7;
+                setTimeout("cambiarimg()", 0);
+
+            } else if (totalTime === 2) {
+                black();
+                totalTime -= 1;
+                setTimeout("cambiarimg()", 1000);
+            } else {
+                totalTime -= 1;
+                setTimeout("cambiarimg()", 1000);
+            }
+        }
+
+        function black() {
+            document.getElementById("imagen").src = "D:/Angie/GazeFlowAPI,IMAGENES-20200512T193736Z-001/GazeFlowAPI,IMAGENES/HTML5 JavaScript/img/doves.png";
+        }
+        onload = function() {
+
+            rotarImagenes();
+
+            cambiarimg();
+
+        }
+    </script>
+</head>
+
+<body>
+    <h4 id="cont"></h4>
+    <h4 id="countdown"></h4>
+    <a href="" id="link"><img src="" id="imagen" class="fit"></a>
+</body>
+
+</html>

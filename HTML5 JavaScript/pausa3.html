@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        body {
+            background-color: rgb(0, 0, 0);
+        }
+        
+        .circulo {
+            width: 50px;
+            height: 50px;
+            -moz-border-radius: 50%;
+            -webkit-border-radius: 50%;
+            border-radius: 50%;
+            background: rgb(0, 255, 166);
+            position: absolute;
+            animation-name: example;
+            animation-duration: 50s;
+            top: 50%;
+            left: 50%;
+            margin-top: -25px;
+            margin-left: -25px;
+        }
+        
+        h1 {
+            margin-top: 10%;
+            text-align: center;
+            color: rgb(160, 231, 206);
+            font: Calibri;
+        }
+        
+        span {
+            color: rgb(160, 231, 206);
+            font: Calibri;
+            opacity: 0.05;
+        }
+        
+        span {
+            font-size: 100px;
+        }
+        
+        .fit {
+            position: absolute;
+            top: 0;
+            width: auto;
+            height: 100%;
+            margin-left: auto;
+            margin-right: auto;
+            left: 0;
+            right: 0;
+            opacity: 0.01;
+        }
+        
+        textarea {
+            overflow: hidden;
+            top: 0;
+            right: 0;
+            resize: none;
+            position: fixed;
+            background-color: black;
+            /* background-color: white; */
+            border: none;
+        }
+    </style>
+    <script>
+        var ConnectionAuthorizationStatus;
+        var d = new Date();
+        var gazedatasave = ["GazeX,GazeY", d.toLocaleTimeString()]
+        var connectconect = false;
+        var contador = 0;
+        //To get your AppKey register at http://gazeflow.epizy.com/GazeFlowAPI/register/
+
+        function Connect(AppKey = "gaze images", port = 43333) {
+
+
+
+            if ("WebSocket" in window) {
+
+
+                var url = "ws://127.0.0.1:" + port;
+
+
+                var ws = new WebSocket(url);
+
+
+                ws.onopen = function() {
+
+                    ws.send(AppKey); // Send appKey
+
+                }
+
+
+                ws.onerror = function(error) {
+
+
+                    alert("cannot connect to GazePointer server : start GazePointer( http://gazepointer.sourceforge.net ) ");
+
+
+                }
+
+
+
+
+                ws.onmessage = function(evt) {
+                    var received_msg = evt.data;
+
+
+                    if (typeof ConnectionAuthorizationStatus === 'undefined') {
+                        ConnectionAuthorizationStatus = received_msg;
+
+                        if (ConnectionAuthorizationStatus.substring(0, 2) !== "ok")
+
+                            alert("connection status..." + ConnectionAuthorizationStatus);
+                    } else {
+
+                        var GazeData = JSON.parse(received_msg);
+                        PlotGazeData(GazeData);
+                        //console.log(GazeData);
+                    }
+
+                }
+
+
+                ws.onclose = function() {
+
+
+
+
+                    // websocket is closed.
+                    alert("Connection is closed...");
+                };
+
+
+            } else {
+
+                // The browser doesn't support WebSocket
+                alert("WebSocket NOT supported by your Browser!");
+            }
+
+        }
+
+        function PlotGazeData(GazeData) {
+            var d = new Date();
+            time = d.toLocaleTimeString();
+            imagefile = document.getElementById("imagen").src.toString();
+            document.getElementById("txt").innerHTML = gazedatasave.toString();
+            gazedatasave.unshift(GazeData.GazeX + " , " + GazeData.GazeY + " , " + time + " , " + imagefile + "\n");
+        }
+
+        function saveFile() {
+            var data = document.getElementById('txt').value;
+            const textToBLOB = new Blob([data], {
+                type: 'text/plain'
+            });
+            const sFileName = 'testM.cvs';
+            let newLink = document.createElement("a");
+            newLink.download = sFileName;
+
+            if (window.webkitURL != null) {
+                newLink.href = window.webkitURL.createObjectURL(textToBLOB);
+            } else {
+                newLink.href = window.URL.createObjectURL(textToBLOB);
+                newLink.style.display = "none";
+                document.body.appendChild(newLink);
+            }
+            newLink.click();
+        }
+    </script>
+</head>
+
+<body id="bod">
+
+    <a href="" id="link">
+        <img src="" id="imagen" class="fit">
+        <div id="imagen" class="circulo"></div>
+    </a>
+    <h1> siga el circulo</h1>
+    <span id="countdown"></span>
+    <textarea id="txt"></textarea>
+
+
+</body>
+<script>
+    window.onload = updateClock;
+    document.getElementById("imagen").src = 'D:/Angie/universidad/2019/angie2/Doves/Images1/doves0004.jpeg';
+    var totalTime = 0;
+    var connectconect = false;
+
+    function updateClock() {
+        if (connectconect == false) {
+            Connect();
+            connectconect = true;
+        }
+
+        document.getElementById('countdown').innerHTML = totalTime;
+        var vart = 2;
+        if (totalTime == (9 * vart)) {
+            saveFile();
+            totalTime += 1;
+            setTimeout("updateClock()", 10);
+
+
+        }
+        if (totalTime > (9 * vart)) {
+            setTimeout("nextstep()", 2000);
+        } else if (totalTime % vart == 0) {
+            animacion(contt);
+            totalTime += 1;
+            contt += 1;
+            setTimeout("updateClock()", 1000);
+        } else {
+            totalTime += 1;
+            setTimeout("updateClock()", 1000);
+        }
+
+    }
+    contt = 0;
+
+    function nextstep() {
+        location.href = "prueba1.html";
+    }
+
+    function animacion(total) {
+        var screenImage = document.getElementById("imagen");
+        var element = document.querySelector('.circulo');
+        var imageHeight = screenImage.clientHeight;
+        switch (total) {
+            case 1:
+                size = (window.innerWidth / 2) - ((imageHeight * 1024 / 768) / 2);
+                element.style.setProperty('left', size + "px");
+                element.style.setProperty('top', 0);
+                element.style.setProperty('top', 0);
+                element.style.setProperty('margin-top', 0);
+                element.style.setProperty('margin-left', 0);
+                break;
+            case 2:
+                element.style.setProperty('left', 50 + "%");
+                element.style.setProperty('top', 0);
+                element.style.setProperty('margin-top', 0);
+                element.style.setProperty('margin-left', -25 + "px");
+                break;
+            case 3:
+                size = (imageHeight * 1024 / 768) / 2 + (window.innerWidth / 2);
+                element.style.setProperty('left', size + "px");
+                element.style.setProperty('top', 0);
+                element.style.setProperty('margin-top', 0);
+                element.style.setProperty('margin-left', -50 + "px");
+                break;
+            case 4:
+                size = (window.innerWidth / 2) - ((imageHeight * 1024 / 768) / 2);
+                element.style.setProperty('left', size + "px");
+                element.style.setProperty('top', 50 + "%");
+                element.style.setProperty('margin-top', -25 + "px");
+                element.style.setProperty('margin-left', 0);
+                break;
+            case 5:
+                size = (imageHeight * 1024 / 768) / 2 + (window.innerWidth / 2);
+                element.style.setProperty('left', size + "px");
+                element.style.setProperty('top', 50 + "%");
+                element.style.setProperty('margin-top', -25 + "px");
+                element.style.setProperty('margin-left', -50 + "px");
+                break;
+            case 6:
+                size = (window.innerWidth / 2) - ((imageHeight * 1024 / 768) / 2);
+                element.style.setProperty('left', size + "px");
+                element.style.setProperty('top', 100 + "%");
+                element.style.setProperty('margin-top', -50 + "px");
+                element.style.setProperty('margin-left', 0);
+                break;
+            case 7:
+                element.style.setProperty('left', 50 + "%");
+                element.style.setProperty('top', 100 + "%");
+                element.style.setProperty('margin-top', -50 + "px");
+                element.style.setProperty('margin-left', -25 + "px");
+                break;
+            case 8:
+                size = (imageHeight * 1024 / 768) / 2 + (window.innerWidth / 2);
+                element.style.setProperty('left', size + "px");
+                element.style.setProperty('top', 100 + "%");
+                element.style.setProperty('margin-top', -50 + "px");
+                element.style.setProperty('margin-left', -50 + "px");
+                break;
+
+
+        }
+    }
+</script>
+
+</html>
